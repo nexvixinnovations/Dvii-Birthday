@@ -201,15 +201,15 @@ function initJourney() {
 
   if (title) {
     gsap.fromTo(title,
-      { opacity: 0, y: 24 },
+      { opacity: 0, y: 16 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.8,
+        duration: 0.45,
         ease: 'power2.out',
         scrollTrigger: {
           trigger: '#section-journey',
-          start: 'top 88%',
+          start: 'top 95%',
           once: true,
         }
       }
@@ -218,16 +218,16 @@ function initJourney() {
 
   if (subtitle) {
     gsap.fromTo(subtitle,
-      { opacity: 0, y: 16 },
+      { opacity: 0, y: 12 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.8,
-        delay: 0.1,
+        duration: 0.45,
+        delay: 0.05,
         ease: 'power2.out',
         scrollTrigger: {
           trigger: '#section-journey',
-          start: 'top 88%',
+          start: 'top 95%',
           once: true,
         }
       }
@@ -235,17 +235,17 @@ function initJourney() {
   }
 
   const cards = document.querySelectorAll('.journey__card');
-  cards.forEach((card, i) => {
+  cards.forEach((card) => {
     gsap.fromTo(card,
-      { opacity: 0, y: 35 },
+      { opacity: 0, y: 20 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.75,
+        duration: 0.45,
         ease: 'power2.out',
         scrollTrigger: {
           trigger: card,
-          start: 'top 92%',
+          start: 'top 96%',
           once: true,
         }
       }
@@ -254,23 +254,31 @@ function initJourney() {
 }
 
 // ──────────────────────────────────────────
-// SECTION 5: CHOSE EACH OTHER
+// SECTION 5: CHOSE EACH OTHER (The emotional peak)
 // ──────────────────────────────────────────
 function initChoseSection() {
   const lines = document.querySelectorAll('.chose__line');
+  if (lines.length === 0) return;
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#section-chose',
+      start: 'top 75%',
+      once: true,
+    }
+  });
+
   lines.forEach((line, i) => {
-    gsap.to(line, {
-      scrollTrigger: {
-        trigger: '#section-chose',
-        start: `top+=${i * 80} center`,
-        toggleActions: 'play none none reverse',
+    tl.fromTo(line,
+      { opacity: 0, y: 20 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out',
       },
-      opacity: 1,
-      y: 0,
-      duration: 1,
-      ease: 'power3.out',
-    });
-    gsap.set(line, { y: 30 });
+      i === 0 ? 0.2 : '+=0.5'
+    );
   });
 }
 
@@ -278,28 +286,65 @@ function initChoseSection() {
 // SECTION 6: PROMISE
 // ──────────────────────────────────────────
 function initPromise() {
-  gsap.to('#promise-quote', {
-    scrollTrigger: { trigger: '#section-promise', start: 'top 70%', toggleActions: 'play none none reverse' },
-    opacity: 1, y: 0, duration: 1.5, ease: 'power3.out',
-  });
-  gsap.set('#promise-quote', { y: 40 });
+  const quote = document.getElementById('promise-quote');
+  const sub = document.getElementById('promise-sub');
 
-  gsap.to('#promise-sub', {
-    scrollTrigger: { trigger: '#section-promise', start: 'top 60%', toggleActions: 'play none none reverse' },
-    opacity: 1, y: 0, duration: 1.2, delay: 0.5, ease: 'power3.out',
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#section-promise',
+      start: 'top 80%',
+      once: true,
+    }
   });
-  gsap.set('#promise-sub', { y: 30 });
+
+  if (quote) {
+    tl.fromTo(quote,
+      { opacity: 0, y: 24 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.0,
+        ease: 'power2.out',
+      },
+      0.2
+    );
+  }
+
+  if (sub) {
+    tl.fromTo(sub,
+      { opacity: 0, y: 18 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.9,
+        ease: 'power2.out',
+      },
+      '+=0.3'
+    );
+  }
 }
 
 // ──────────────────────────────────────────
 // SECTION 7: FINALE
 // ──────────────────────────────────────────
 function initFinale() {
-  gsap.to('#finale-hb', {
-    scrollTrigger: { trigger: '#section-finale', start: 'top 70%', toggleActions: 'play none none reverse' },
-    opacity: 1, y: 0, duration: 1, ease: 'power3.out',
-  });
-  gsap.set('#finale-hb', { y: 30 });
+  const hb = document.getElementById('finale-hb');
+  if (hb) {
+    gsap.fromTo(hb,
+      { opacity: 0, y: 20 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '#section-finale',
+          start: 'top 80%',
+          once: true,
+        }
+      }
+    );
+  }
 
   const section = document.getElementById('section-finale');
   const hint = document.getElementById('finale-tap-hint');

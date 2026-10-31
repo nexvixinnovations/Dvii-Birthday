@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { readdirSync, existsSync, createReadStream, copyFileSync, mkdirSync } from 'fs';
+import { readdirSync, existsSync, createReadStream, copyFileSync, mkdirSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -12,6 +12,20 @@ function imageListPlugin() {
   const virtualModuleId = 'virtual:image-list';
   const resolvedVirtualModuleId = '\0' + virtualModuleId;
 
+  const getImages = () => {
+    let files = [];
+    try {
+      if (existsSync(IMAGES_DIR)) {
+        files = readdirSync(IMAGES_DIR)
+          .filter(f => /\.(jpg|jpeg|png|webp|JPG|JPEG|PNG)$/i.test(f))
+          .map(f => `/images/${f}`);
+      }
+    } catch (e) {
+      files = [];
+    }
+    return files;
+  };
+
   return {
     name: 'image-list-plugin',
     resolveId(id) {
@@ -19,14 +33,13 @@ function imageListPlugin() {
     },
     load(id) {
       if (id === resolvedVirtualModuleId) {
-        let files = [];
+        const files = getImages();
+        // Also write manifest.json to public/images for fallback
         try {
-          files = readdirSync(IMAGES_DIR)
-            .filter(f => /\.(jpg|jpeg|png|webp|JPG|JPEG|PNG)$/i.test(f))
-            .map(f => `/images/${f}`);
-        } catch (e) {
-          files = [];
-        }
+          if (existsSync(IMAGES_DIR)) {
+            writeFileSync(resolve(IMAGES_DIR, 'manifest.json'), JSON.stringify(files, null, 2));
+          }
+        } catch (e) {}
         return `export const images = ${JSON.stringify(files)};`;
       }
     },
@@ -40,7 +53,6 @@ function imageListPlugin() {
             audioPath = resolve(PUBLIC_AUDIO_DIR, decodeURIComponent(fileName));
           }
           if (!existsSync(audioPath)) {
-            // Find any mp3 file in AUDIO_DIR or PUBLIC_AUDIO_DIR
             const findMp3 = (dir) => {
               if (existsSync(dir)) {
                 const list = readdirSync(dir).filter(f => /\.mp3$/i.test(f));
@@ -78,11 +90,22 @@ function imageListPlugin() {
         copyFrom(AUDIO_DIR);
         copyFrom(PUBLIC_AUDIO_DIR);
       } catch (e) {}
+
+      // Ensure manifest.json is in dist/images
+      try {
+        const files = getImages();
+        const outImagesDir = resolve(__dirname, 'dist/images');
+        if (!existsSync(outImagesDir)) {
+          mkdirSync(outImagesDir, { recursive: true });
+        }
+        writeFileSync(resolve(outImagesDir, 'manifest.json'), JSON.stringify(files, null, 2));
+      } catch (e) {}
     }
   };
 }
 
 export default defineConfig({
+  base: './',
   root: '.',
   publicDir: 'public',
   plugins: [imageListPlugin()],

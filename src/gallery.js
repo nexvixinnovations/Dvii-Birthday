@@ -17,6 +17,21 @@ export class Gallery {
 
   async init() {
     this.images = Array.isArray(imageList) && imageList.length > 0 ? imageList : [];
+    if (this.images.length === 0) {
+      try {
+        const res = await fetch('./images/manifest.json');
+        if (res.ok) {
+          this.images = await res.json();
+        }
+      } catch (e) {
+        try {
+          const res = await fetch('/images/manifest.json');
+          if (res.ok) {
+            this.images = await res.json();
+          }
+        } catch (err) {}
+      }
+    }
     this._renderLines();
     this._setupControls();
   }
